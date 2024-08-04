@@ -2,8 +2,10 @@ import gradio as gr
 from openai import OpenAI
 import os
 
+default_prompt = "The best thing about being a cat is"
+
 # Initialize the OpenAI client
-api_key = os.environ.get('HYPERBOLIC_API_KEY', 'your_default_api_key_here')
+api_key = os.environ.get('HYPERBOLIC_API_KEY')
 client = OpenAI(
     base_url="https://api.hyperbolic.xyz/v1",
     api_key=api_key,
@@ -27,22 +29,27 @@ def append_completion(prompt, completion):
     new_prompt = f"{prompt}\n{completion}".strip()
     return new_prompt, ""  # Return new prompt and empty completion
 
+def clear_fields():
+    return "", ""
+
 with gr.Blocks(theme=gr.themes.Soft()) as iface:
     gr.Markdown("# Llama 3.1 405B Completion Interface")
     
     with gr.Row():
         with gr.Column(scale=2):
-            prompt_input = gr.Textbox(label="Prompt", lines=5, placeholder="Enter your prompt here...")
+            prompt_input = gr.Textbox(label="Prompt", lines=5, value="The best thing about being a cat is")
         with gr.Column(scale=1):
             temperature_slider = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
             repetition_penalty_slider = gr.Slider(minimum=0, maximum=2, value=1.1, step=0.1, label="Repetition Penalty")
             stop_phrase_input = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
     
-    generate_button = gr.Button("Generate Completion")
+    with gr.Row():
+        generate_button = gr.Button("Generate Completion")
+        append_button = gr.Button("Append Completion to Prompt")
+        clear_button = gr.Button("Clear All Fields")
+
     
     output_text = gr.Textbox(label="Generated Completion", lines=10)
-    
-    append_button = gr.Button("Append Completion to Prompt")
     
     generate_button.click(
         generate_completion, 
@@ -53,6 +60,11 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     append_button.click(
         append_completion,
         inputs=[prompt_input, output_text],
+        outputs=[prompt_input, output_text]
+    )
+
+    clear_button.click(
+        clear_fields,
         outputs=[prompt_input, output_text]
     )
     
