@@ -18,7 +18,7 @@ def generate_completion(prompt, temperature, repetition_penalty, stop_phrase):
             prompt=prompt,
             temperature=temperature,
             frequency_penalty=repetition_penalty,
-            max_tokens=2000,
+            max_tokens=500,
             stop=[stop_phrase] if stop_phrase else None
         )
         return completion.choices[0].text.strip()
@@ -26,7 +26,7 @@ def generate_completion(prompt, temperature, repetition_penalty, stop_phrase):
         return f"An error occurred: {str(e)}"
 
 def append_completion(prompt, completion):
-    new_prompt = f"{prompt}\n{completion}".strip()
+    new_prompt = f"{prompt}{completion}".strip()
     return new_prompt, ""  # Return new prompt and empty completion
 
 def clear_fields():
@@ -37,7 +37,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     
     with gr.Row():
         with gr.Column(scale=2):
-            prompt_input = gr.Textbox(label="Prompt", lines=5, value="The best thing about being a cat is")
+            prompt_input = gr.Textbox(label="Prompt", lines=6, value="The best thing about being a cat is")
         with gr.Column(scale=1):
             temperature_slider = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
             repetition_penalty_slider = gr.Slider(minimum=0, maximum=2, value=1.1, step=0.1, label="Repetition Penalty")
