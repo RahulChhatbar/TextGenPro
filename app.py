@@ -18,7 +18,7 @@ def generate_completion(prompt, temperature, repetition_penalty, stop_phrase):
             prompt=prompt,
             temperature=temperature,
             frequency_penalty=repetition_penalty,
-            max_tokens=500,
+            max_tokens=2000,
             stop=[stop_phrase] if stop_phrase else None
         )
         return completion.choices[0].text.strip()
