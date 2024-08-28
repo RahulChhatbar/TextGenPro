@@ -14,7 +14,7 @@ client = OpenAI(
 def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, max_tokens):
     try:
         completion = client.completions.create(
-            model="meta-llama/Meta-Llama-3.1-405B-FP8",
+            model="meta-llama/Meta-Llama-3.1-405B",
             prompt=prompt,
             temperature=temperature,
             frequency_penalty=repetition_penalty,
