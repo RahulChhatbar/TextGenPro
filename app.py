@@ -1,8 +1,10 @@
 import gradio as gr
 from openai import OpenAI
+from transformers import pipeline
 import os
+import torch
 
-default_prompt = "The best thing about being a cat is"
+device = 0 if torch.cuda.is_available() else -1
 
 # Initialize the OpenAI client
 api_key = os.environ.get('HYPERBOLIC_API_KEY')
@@ -11,7 +13,16 @@ client = OpenAI(
     api_key=api_key,
 )
 
+def local_model_generate_completion(prompt):
+    try:
+        completion = pipeline("text-generation", model='openai-gpt')
+        res = completion(text[-50:], max_new_tokens=100, num_return_sequences=1, device=device)
+        return res[0]['generated_text']
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
 def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, max_tokens):
+    return "000"
     try:
         completion = client.completions.create(
             model="meta-llama/Meta-Llama-3.1-405B",
