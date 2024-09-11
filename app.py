@@ -13,7 +13,7 @@ client = OpenAI(
     api_key=api_key,
 )
 
-def local_model_generate_completion(prompt):
+def local_generate_completion(prompt):
     try:
         completion = pipeline("text-generation", model='openai-gpt')
         res = completion(text[-50:], max_new_tokens=100, num_return_sequences=1, device=device)
@@ -22,7 +22,6 @@ def local_model_generate_completion(prompt):
         return f"An error occurred: {str(e)}"
 
 def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, max_tokens):
-    return "000"
     try:
         completion = client.completions.create(
             model="meta-llama/Meta-Llama-3.1-405B",
@@ -57,6 +56,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     
     with gr.Row():
         generate_button = gr.Button("Generate Completion")
+        local_generate_button = gr.Button("Generate Completion Using Local Model")
         append_button = gr.Button("Append Completion to Prompt")
         clear_button = gr.Button("Clear All Fields")
     
@@ -65,6 +65,12 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     generate_button.click(
         generate_completion,
         inputs=[prompt_input, temperature_slider, repetition_penalty_slider, stop_phrase_input, max_tokens_slider],
+        outputs=output_text
+    )
+
+    local_generate_button.click(
+        local_generate_completion,
+        inputs=[prompt_input],
         outputs=output_text
     )
     
