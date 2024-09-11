@@ -46,7 +46,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     
     with gr.Row():
         with gr.Column(scale=2):
-            prompt_input = gr.Textbox(label="Prompt", lines=6, value="The best thing about being a cat is")
+            prompt_input = gr.Textbox(label="Prompt", value="The best thing about being a cat is")
         with gr.Column(scale=1):
             temperature_slider = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
             repetition_penalty_slider = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
