@@ -36,7 +36,7 @@ def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, ma
         return f"An error occurred: {str(e)}"
 
 def append_completion(completion):
-    return f"{completion}".strip(), ""  # Return new prompt and empty completion
+    return completion.strip(), ""  # Return new prompt and empty completion
 
 def clear_fields():
     return "", ""
