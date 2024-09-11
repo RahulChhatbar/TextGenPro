@@ -91,4 +91,4 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     Thank you to Hyperbolic for making this base model available!
     """)
 
-iface.launch(share=True)
+iface.launch(share=False)
