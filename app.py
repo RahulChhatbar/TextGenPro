@@ -31,13 +31,12 @@ def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, ma
             max_tokens=max_tokens,
             stop=[stop_phrase] if stop_phrase else None
         )
-        return completion.choices[0].text.strip()
+        return prompt + " " + completion.choices[0].text.strip()
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
-def append_completion(prompt, completion):
-    new_prompt = f"{prompt}{completion}".strip()
-    return new_prompt, ""  # Return new prompt and empty completion
+def append_completion(completion):
+    return f"{completion}".strip(), ""  # Return new prompt and empty completion
 
 def clear_fields():
     return "", ""
