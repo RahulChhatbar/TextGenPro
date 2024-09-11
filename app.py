@@ -13,7 +13,7 @@ client = OpenAI(
     api_key=api_key,
 )
 
-def local_generate_completion(prompt):
+def local_generate_completion(prompt, max_tokens, device):
     try:
         completion = pipeline("text-generation", model='openai-gpt')
         res = completion(prompt, max_new_tokens=max_tokens, device=device)
