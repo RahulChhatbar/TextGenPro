@@ -16,7 +16,7 @@ client = OpenAI(
 def local_generate_completion(prompt):
     try:
         completion = pipeline("text-generation", model='openai-gpt')
-        res = completion(prompt[-50:], max_new_tokens=100, num_return_sequences=1, device=device)
+        res = completion(prompt, max_new_tokens=max_tokens, device=device)
         return res[0]['generated_text']
     except Exception as e:
         return f"An error occurred: {str(e)}"
