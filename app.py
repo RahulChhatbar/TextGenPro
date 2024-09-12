@@ -55,8 +55,8 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
             stop_phrase_input = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
     
     with gr.Row():
-        generate_button = gr.Button("Generate Completion of Text Using API Model")
-        local_generate_button = gr.Button("Generate Completion of Text Using Local Model")
+        generate_button = gr.Button("API Model Text Generation")
+        local_generate_button = gr.Button("Local Model Text Generation")
         append_button = gr.Button("Append Completion to Prompt")
         clear_button = gr.Button("Clear All Fields")
     
