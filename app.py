@@ -72,8 +72,6 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
         append_button = gr.Button("Append Completion to Prompt")
         clear_button = gr.Button("Clear All Fields")
     
-    output_text = gr.Textbox(label="Generated Completion", lines=10)
-    
     generate_button.click(
         generate_completion,
         inputs=[prompt_input, temperature_slider, repetition_penalty_slider, stop_phrase_input, max_tokens_slider],
