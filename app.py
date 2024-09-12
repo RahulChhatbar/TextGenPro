@@ -47,21 +47,22 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
 
     with gr.Row():
             prompt_input = gr.Textbox(label="Prompt", value="The best thing about being a cat is")
+
+    with gr.Accordion("Additional Features", open=False):    
+        with gr.Row():
+            with gr.Column():
+                gr.Markdown("### API Model Parameters")
+                temperature_slider = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
+                repetition_penalty_slider = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
+                max_tokens_slider = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
+                stop_phrase_input = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
+            with gr.Column():
+                gr.Markdown("### Local Model Parameters")
+                temperature_slider = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
+                repetition_penalty_slider = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
+                max_tokens_slider = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
+                stop_phrase_input = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
         
-    with gr.Row():
-        with gr.Column():
-            gr.Markdown("### API Model Parameters")
-            temperature_slider = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-            repetition_penalty_slider = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
-            max_tokens_slider = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
-            stop_phrase_input = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
-        with gr.Column():
-            gr.Markdown("### Local Model Parameters")
-            temperature_slider = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-            repetition_penalty_slider = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
-            max_tokens_slider = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
-            stop_phrase_input = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
-    
     with gr.Row():
         generate_button = gr.Button("API Model Text Generation")
         local_generate_button = gr.Button("Local Model Text Generation")
