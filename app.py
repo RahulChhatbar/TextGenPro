@@ -42,6 +42,15 @@ def clear_fields():
     return "", ""
 
 with gr.Blocks(theme=gr.themes.Soft()) as iface:
+    gr.HTML("""
+    <style>
+        .wrap-button .gr-button {
+            white-space: normal !important;
+            height: auto !important;
+        }
+    </style>
+    """)
+
     gr.Markdown("# Llama 3.1 405B Completion Interface")
     
     with gr.Row():
@@ -55,7 +64,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     
     with gr.Row():
         generate_button = gr.Button("Generate Completion\nUsing API Model")
-        local_generate_button = gr.Button("Generate Completion\nUsing Local Model")
+        local_generate_button = gr.Button("Generate Completion Using Local Model", elem_classes="wrap-button")
         append_button = gr.Button("Append Completion to Prompt")
         clear_button = gr.Button("Clear All Fields")
     
