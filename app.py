@@ -46,7 +46,10 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     gr.Markdown("# Llama 3.1 405B Completion Interface")
 
     with gr.Row():
-            prompt_input = gr.Textbox(label="Prompt", value="The best thing about being a cat is")
+        with gr.Column():
+            prompt_input = gr.Textbox(label="Prompt", value="The best thing about being a cat is", lines=10)
+        with gr.Column():
+            output_text = gr.Textbox(label="Generated Completion", lines=10)
 
     with gr.Accordion("Additional Features", open=False):    
         with gr.Row():
