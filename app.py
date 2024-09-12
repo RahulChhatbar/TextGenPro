@@ -6,23 +6,23 @@ import torch
 
 device = 0 if torch.cuda.is_available() else -1
 
-# Initialize the OpenAI client
-api_key = os.environ.get('HYPERBOLIC_API_KEY')
-client = OpenAI(
-    base_url="https://api.hyperbolic.xyz/v1",
-    api_key=api_key,
-)
-
 def local_generate_completion(prompt, max_tokens, device):
     try:
         completion = pipeline("text-generation", model='openai-gpt')
-        res = completion(prompt, max_new_tokens=max_tokens, device=device)
+        res = completion(prompt=prompt, 
+                         max_new_tokens=max_tokens, 
+                         device=device)
         return res[0]['generated_text'][len(prompt)+1:]
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
 def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, max_tokens):
     try:
+        api_key = os.environ.get('HYPERBOLIC_API_KEY')
+        client = OpenAI(
+            base_url="https://api.hyperbolic.xyz/v1",
+            api_key=api_key,
+        )
         completion = client.completions.create(
             model="meta-llama/Meta-Llama-3.1-405B",
             prompt=prompt,
@@ -36,7 +36,7 @@ def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, ma
         return f"An error occurred: {str(e)}"
 
 def append_completion(prompt, completion):
-    return f"{prompt+" "}{completion}".strip(), ""  # Return new prompt and empty completion
+    return f"{prompt}{" "}{completion}".strip(), ""  # Return new prompt and empty completion
 
 def clear_fields():
     return "", ""
