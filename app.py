@@ -36,7 +36,7 @@ def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, ma
         return f"An error occurred: {str(e)}"
 
 def append_completion(prompt, completion):
-    return f"{prompt}{completion}".strip(), ""  # Return new prompt and empty completion
+    return f"{prompt+" "}{completion}".strip(), ""  # Return new prompt and empty completion
 
 def clear_fields():
     return "", ""
@@ -94,11 +94,5 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
         clear_fields,
         outputs=[prompt_input, output_text]
     )
-    
-    gr.Markdown("""
-    ---
-    This interface is powered by the Llama 3.1 405B base model, served by [Hyperbolic](https://hyperbolic.xyz), The Open Access AI Cloud.
-    Thank you to Hyperbolic for making this base model available!
-    """)
 
 iface.launch(share=False)
