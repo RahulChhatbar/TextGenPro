@@ -17,7 +17,7 @@ def local_generate_completion(prompt, max_tokens, device):
     try:
         completion = pipeline("text-generation", model='openai-gpt')
         res = completion(prompt, max_new_tokens=max_tokens, device=device)
-        return res[0]['generated_text']
+        return res[0]['generated_text'][len(prompt)+1:]
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
@@ -31,12 +31,12 @@ def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, ma
             max_tokens=max_tokens,
             stop=[stop_phrase] if stop_phrase else None
         )
-        return prompt + " " + completion.choices[0].text.strip()
+        return completion.choices[0].text.strip()
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
-def append_completion(completion):
-    return completion.strip(), ""  # Return new prompt and empty completion
+def append_completion(prompt, completion):
+    return f{prompt}{completion}.strip(), ""  # Return new prompt and empty completion
 
 def clear_fields():
     return "", ""
@@ -84,7 +84,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     
     append_button.click(
         append_completion,
-        inputs=[output_text],
+        inputs=[prompt_input, output_text],
         outputs=[prompt_input, output_text]
     )
     
