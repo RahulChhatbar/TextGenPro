@@ -75,7 +75,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     
     append_button.click(
         append_completion,
-        inputs=[prompt_input, output_text],
+        inputs=[output_text],
         outputs=[prompt_input, output_text]
     )
     
