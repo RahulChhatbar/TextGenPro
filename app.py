@@ -43,8 +43,6 @@ def clear_fields():
 
 with gr.Blocks(theme=gr.themes.Soft()) as iface:
 
-    gr.Markdown("# Llama 3.1 405B Completion Interface")
-
     with gr.Row():
         with gr.Column():
             prompt_input = gr.Textbox(label="Prompt", value="The best thing about being a cat is", lines=10)
