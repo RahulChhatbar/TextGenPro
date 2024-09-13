@@ -59,16 +59,15 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
         with gr.Row():
             with gr.Column():
                 gr.Markdown("### API Model Parameters")
-                temperature_slider = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-                repetition_penalty_slider = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
-                max_tokens_slider = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
-                stop_phrase_input = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
+                temperature_slider_api = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
+                repetition_penalty_slider_api = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
+                max_tokens_slider_api = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
+                stop_phrase_input_api = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
             with gr.Column():
                 gr.Markdown("### Local Model Parameters")
-                temperature_slider = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-                repetition_penalty_slider = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
-                max_tokens_slider = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
-                stop_phrase_input = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
+                temperature_slider_local = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
+                repetition_penalty_slider_local = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
+                max_tokens_slider_local = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
         
     with gr.Row():
         generate_button = gr.Button("API Model Text Generation")
@@ -78,13 +77,13 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
     
     generate_button.click(
         generate_completion,
-        inputs=[prompt_input, temperature_slider, repetition_penalty_slider, stop_phrase_input, max_tokens_slider],
+        inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, stop_phrase_input_api, max_tokens_slider_api],
         outputs=output_text
     )
 
     local_generate_button.click(
         local_generate_completion,
-        inputs=[prompt_input],
+        inputs=[prompt_input, max_tokens_slider_local, temperature_slider_local, repetition_penalty_slider_local],
         outputs=output_text
     )
     
