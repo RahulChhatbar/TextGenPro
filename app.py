@@ -6,6 +6,7 @@ import torch
 
 
 def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty):
+    prompt = prompt.strip()
     device = 0 if torch.cuda.is_available() else -1
     try:
         completion = pipeline("text-generation", model='gpt2', device=device)
@@ -22,6 +23,7 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
         return f"An error occurred: {str(e)}"
 
 def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, max_tokens):
+    prompt = prompt.strip()
     try:
         api_key = os.environ.get('HYPERBOLIC_API_KEY')
         client = OpenAI(
@@ -41,6 +43,7 @@ def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, ma
         return f"An error occurred: {str(e)}"
 
 def append_completion(prompt, completion):
+    prompt, completion = prompt.strip(), completion.strip()
     return f"{prompt}{' '}{completion}".strip(), ""  # Return new prompt and empty completion
 
 def clear_fields():
