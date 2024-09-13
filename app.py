@@ -47,7 +47,7 @@ def append_completion(prompt, completion):
 def clear_fields():
     return "", ""
 
-with gr.Blocks(theme=gr.themes.Soft()) as iface:
+with gr.Blocks(css=".gr-button#stop-button {background-color: red; color: white;}") as iface:
 
     with gr.Row():
         with gr.Column():
@@ -74,6 +74,9 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
         local_generate_button = gr.Button("Local Model Text Generation")
         append_button = gr.Button("Append Completion to Prompt")
         clear_button = gr.Button("Clear All Fields")
+
+    with gr.Row():
+        stop_button = gr.Button("Stop Generation", elem_id="stop-button")
     
     generate_button.click(
         generate_completion,
@@ -98,4 +101,6 @@ with gr.Blocks(theme=gr.themes.Soft()) as iface:
         outputs=[prompt_input, output_text]
     )
 
+    stop_button.click(None, None, None).stop()
+    
 iface.launch(share=False)
