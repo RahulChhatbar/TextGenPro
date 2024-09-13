@@ -16,7 +16,7 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
             repetition_penalty=repetition_penalty,
             do_sample=True
         )
-        generated_text = res[0]['generated_text']
+        generated_text = res[0]['generated_text'].strip()
         return generated_text[len(prompt):]
     except Exception as e:
         return f"An error occurred: {str(e)}"
