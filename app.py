@@ -4,9 +4,9 @@ from transformers import pipeline
 import os
 import torch
 
-device = 0 if torch.cuda.is_available() else -1
 
-def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty, device):
+def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty):
+    device = 0 if torch.cuda.is_available() else -1
     try:
         completion = pipeline("text-generation", model='gpt2', device=device)
         res = completion(
