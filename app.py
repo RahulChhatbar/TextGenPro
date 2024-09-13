@@ -12,7 +12,8 @@ def local_generate_completion(prompt, max_tokens, device):
         res = completion(prompt=prompt, 
                          max_new_tokens=max_tokens, 
                          device=device)
-        return res[0]['generated_text'][len(prompt)+1:]
+        generated_text = res[0]['generated_text']
+        return generated_text[len(prompt)+1:]
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
