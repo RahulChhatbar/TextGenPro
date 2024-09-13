@@ -8,10 +8,10 @@ device = 0 if torch.cuda.is_available() else -1
 
 def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty, device):
     try:
-        completion = pipeline("text-generation", model='openai-gpt', device=device)
+        completion = pipeline("text-generation", model='gpt2', device=device)
         res = completion(
             prompt, 
-            max_new_tokens=max_tokens, 
+            max_length=max_tokens,
             temperature=temperature,
             repetition_penalty=repetition_penalty,
             do_sample=True
@@ -20,7 +20,6 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
         return generated_text[len(prompt):]
     except Exception as e:
         return f"An error occurred: {str(e)}"
-
 
 def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, max_tokens):
     try:
