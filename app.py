@@ -1,67 +1,106 @@
-import time
 import gradio as gr
-import atexit
-import pathlib
+from openai import OpenAI
+from transformers import pipeline
+import os
+import torch
 
-log_file = pathlib.Path(__file__).parent / "cancel_events_output_log.txt"
+device = 0 if torch.cuda.is_available() else -1
 
-def fake_diffusion(steps):
-    log_file.write_text("")
-    for i in range(steps):
-        print(f"Current step: {i}")
-        with log_file.open("a") as f:
-            f.write(f"Current step: {i}\n")
-        time.sleep(0.2)
-        yield str(i)
+def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty, device):
+    try:
+        completion = pipeline("text-generation", model='openai-gpt', device=device)
+        res = completion(
+            prompt, 
+            max_new_tokens=max_tokens, 
+            temperature=temperature,
+            repetition_penalty=repetition_penalty,
+            do_sample=True
+        )
+        generated_text = res[0]['generated_text']
+        return generated_text[len(prompt):]
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
 
-def long_prediction(*args, **kwargs):
-    time.sleep(10)
-    return 42
 
-with gr.Blocks() as demo:
+def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, max_tokens):
+    try:
+        api_key = os.environ.get('HYPERBOLIC_API_KEY')
+        client = OpenAI(
+            base_url="https://api.hyperbolic.xyz/v1",
+            api_key=api_key,
+        )
+        completion = client.completions.create(
+            model="meta-llama/Meta-Llama-3.1-405B",
+            prompt=prompt,
+            temperature=temperature,
+            frequency_penalty=repetition_penalty,
+            max_tokens=max_tokens,
+            stop=[stop_phrase] if stop_phrase else None
+        )
+        return completion.choices[0].text.strip()
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
+def append_completion(prompt, completion):
+    return f"{prompt}{' '}{completion}".strip(), ""  # Return new prompt and empty completion
+
+def clear_fields():
+    return "", ""
+
+with gr.Blocks(css=".gr-button#stop-button {background-color: red; color: white;}") as iface:
+
     with gr.Row():
         with gr.Column():
-            n = gr.Slider(1, 10, value=9, step=1, label="Number Steps")
-            run = gr.Button(value="Start Iterating")
-            output = gr.Textbox(label="Iterative Output")
-            stop = gr.Button(value="Stop Iterating")
+            prompt_input = gr.Textbox(label="Prompt", value="The best thing about being a cat is", lines=10)
         with gr.Column():
-            textbox = gr.Textbox(label="Prompt")
-            prediction = gr.Number(label="Expensive Calculation")
-            run_pred = gr.Button(value="Run Expensive Calculation")
-        with gr.Column():
-            cancel_on_change = gr.Textbox(
-                label="Cancel Iteration and Expensive Calculation on Change"
-            )
-            cancel_on_submit = gr.Textbox(
-                label="Cancel Iteration and Expensive Calculation on Submit"
-            )
-            echo = gr.Textbox(label="Echo")
+            output_text = gr.Textbox(label="Generated Completion", lines=10)
+
+    with gr.Accordion("Additional Features", open=False):    
+        with gr.Row():
+            with gr.Column():
+                gr.Markdown("### API Model Parameters")
+                temperature_slider_api = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
+                repetition_penalty_slider_api = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
+                max_tokens_slider_api = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
+                stop_phrase_input_api = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
+            with gr.Column():
+                gr.Markdown("### Local Model Parameters")
+                temperature_slider_local = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
+                repetition_penalty_slider_local = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
+                max_tokens_slider_local = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
+        
     with gr.Row():
-        with gr.Column():
-            image = gr.Image(
-                sources=["webcam"], label="Cancel on clear", interactive=True
-            )
-        with gr.Column():
-            video = gr.Video(
-                sources=["webcam"], label="Cancel on start recording", interactive=True
-            )
+        generate_button = gr.Button("API Model Text Generation")
+        local_generate_button = gr.Button("Local Model Text Generation")
+        append_button = gr.Button("Append Completion to Prompt")
+        clear_button = gr.Button("Clear All Fields")
 
-    click_event = run.click(fake_diffusion, n, output)
-    stop.click(fn=None, inputs=None, outputs=None, cancels=[click_event])
-    pred_event = run_pred.click(
-        fn=long_prediction, inputs=[textbox], outputs=prediction
+    with gr.Row():
+        stop_button = gr.Button("Stop Generation", elem_id="stop-button")
+    
+    API_generation_event = generate_button.click(
+        generate_completion,
+        inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, stop_phrase_input_api, max_tokens_slider_api],
+        outputs=output_text
     )
 
-    cancel_on_change.change(None, None, None, cancels=[click_event, pred_event])
-    cancel_on_submit.submit(
-        lambda s: s, cancel_on_submit, echo, cancels=[click_event, pred_event]
+    local_generation_event = local_generate_button.click(
+        local_generate_completion,
+        inputs=[prompt_input, max_tokens_slider_local, temperature_slider_local, repetition_penalty_slider_local],
+        outputs=output_text
     )
-    image.clear(None, None, None, cancels=[click_event, pred_event])
-    video.start_recording(None, None, None, cancels=[click_event, pred_event])
+    
+    append_button.click(
+        append_completion,
+        inputs=[prompt_input, output_text],
+        outputs=[prompt_input, output_text]
+    )
+    
+    clear_button.click(
+        clear_fields,
+        outputs=[prompt_input, output_text]
+    )
 
-    demo.queue(max_size=20)
-    atexit.register(lambda: log_file.unlink())
-
-if __name__ == "__main__":
-    demo.launch()
+    stop_button.click(None, None, None, cancels=[API_generation_event, local_generation_event])
+    
+iface.launch(share=False)
