@@ -10,10 +10,10 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
         completion = pipeline("text2text-generation", model="google/flan-t5-small")
         res = completion(
             prompt, 
-            # max_length=max_tokens,
-            # temperature=temperature,
-            # repetition_penalty=repetition_penalty,
-            # do_sample=True
+            max_length=max_tokens,
+            temperature=temperature,
+            repetition_penalty=repetition_penalty,
+            do_sample=True
         )
         generated_text = res[0]['generated_text'].strip()
         return generated_text[len(prompt):]
