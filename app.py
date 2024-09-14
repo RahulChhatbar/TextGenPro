@@ -2,20 +2,18 @@ import gradio as gr
 from openai import OpenAI
 from transformers import pipeline
 import os
-import torch
 
 
 def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty):
     prompt = prompt.strip()
-    device = 0 if torch.cuda.is_available() else -1
     try:
-        completion = pipeline("text-generation", model='gpt2', device=device)
+        completion = pipeline("text2text-generation", model="google/flan-t5-small")
         res = completion(
             prompt, 
-            max_length=max_tokens,
-            temperature=temperature,
-            repetition_penalty=repetition_penalty,
-            do_sample=True
+            # max_length=max_tokens,
+            # temperature=temperature,
+            # repetition_penalty=repetition_penalty,
+            # do_sample=True
         )
         generated_text = res[0]['generated_text'].strip()
         return generated_text[len(prompt):]
