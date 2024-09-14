@@ -47,7 +47,7 @@ def append_completion(prompt, completion):
 def clear_fields():
     return "", ""
 
-with gr.Blocks(theme=gr.themes.Soft(), css=". {background-color: white;} #stop-button {background-color: red; color: white;}") as iface:
+with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red; color: white;}") as iface:
 
     with gr.Row():
         with gr.Column():
