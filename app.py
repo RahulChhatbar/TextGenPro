@@ -47,7 +47,7 @@ def append_completion(prompt, completion):
 def clear_fields():
     return "", ""
 
-with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red; color: white;}") as iface:
+with gr.Blocks(theme=gr.themes.Soft(), css=". {background-color: white;} #stop-button {background-color: red; color: white;}") as iface:
 
     with gr.Row():
         with gr.Column():
@@ -60,13 +60,13 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
             with gr.Column():
                 gr.Markdown("### API Model Parameters")
                 temperature_slider_api = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-                repetition_penalty_slider_api = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
+                repetition_penalty_slider_api = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
                 max_tokens_slider_api = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
                 stop_phrase_input_api = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
             with gr.Column():
                 gr.Markdown("### Local Model Parameters")
                 temperature_slider_local = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-                repetition_penalty_slider_local = gr.Slider(minimum=0, maximum=2, value=0.1, step=0.1, label="Repetition Penalty")
+                repetition_penalty_slider_local = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
                 max_tokens_slider_local = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
         
     with gr.Row():
