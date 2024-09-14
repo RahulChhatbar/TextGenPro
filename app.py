@@ -7,15 +7,16 @@ import os
 def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty):
     prompt = prompt.strip()
     try:
-        completion = pipeline("text2text-generation", model="google/flan-t5-small")
+        completion = pipeline("text-generation", model="gpt2")
         res = completion(
-            prompt, 
+            prompt,
             max_length=max_tokens,
+            num_return_sequences=1,
             temperature=temperature,
             repetition_penalty=repetition_penalty
         )
         generated_text = res[0]['generated_text']
-        return generated_text
+        return generated_text[len(prompt)+1:]
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
