@@ -12,8 +12,7 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
             prompt, 
             max_length=max_tokens,
             temperature=temperature,
-            repetition_penalty=repetition_penalty,
-            do_sample=True
+            repetition_penalty=repetition_penalty
         )
         generated_text = res[0]['generated_text'].strip()
         return generated_text[len(prompt):]
