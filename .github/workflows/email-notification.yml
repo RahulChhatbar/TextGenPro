@@ -26,7 +26,6 @@ jobs:
             Commit Message: ${{ github.event.head_commit.message }}<br>
             Commit URL: https://github.com/${{ github.repository }}/commit/${{ github.sha }}</p>
           type: 'text/html'
-          attachment: 'path/to/artifacts.zip'
         env:
           SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
