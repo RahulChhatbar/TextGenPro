@@ -22,7 +22,7 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
         return f"An error occurred: {str(e)}"
 
 
-def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, max_tokens):
+def generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase):
     prompt = prompt.strip()
     try:
         api_key = os.environ.get('HYPERBOLIC_API_KEY')
@@ -45,7 +45,7 @@ def generate_completion(prompt, temperature, repetition_penalty, stop_phrase, ma
 
 def append_completion(prompt, completion):
     prompt, completion = prompt.strip(), completion.strip()
-    return f"{prompt}{' '}{completion}".strip(), ""  # Return new prompt and empty completion
+    return f"{prompt}{' '}{completion}".strip(), ""
 
 
 def clear_fields():
@@ -68,15 +68,13 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
             with gr.Column():
                 gr.Markdown("### API Model Parameters")
                 temperature_slider_api = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-                repetition_penalty_slider_api = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1,
-                                                          label="Repetition Penalty")
+                repetition_penalty_slider_api = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
                 max_tokens_slider_api = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
                 stop_phrase_input_api = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
             with gr.Column():
                 gr.Markdown("### Local Model Parameters")
                 temperature_slider_local = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-                repetition_penalty_slider_local = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1,
-                                                            label="Repetition Penalty")
+                repetition_penalty_slider_local = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
                 max_tokens_slider_local = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
 
     with gr.Row():
@@ -112,8 +110,7 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
 
     API_generation_event = generate_button.click(
         generate_completion,
-        inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, stop_phrase_input_api,
-                max_tokens_slider_api],
+        inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, max_tokens_slider_api, stop_phrase_input_api],
         outputs=output_text
     )
 
