@@ -1,5 +1,4 @@
 import gradio as gr
-import pandas as pd
 from openai import OpenAI
 from transformers import pipeline
 import os
