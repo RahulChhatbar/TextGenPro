@@ -24,4 +24,4 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push https://RahulChhatbar:HF_TOKEN@huggingface.co/spaces/RahulChhatbar/completion main
+          git push https://RahulChhatbar:$HF_TOKEN@huggingface.co/spaces/RahulChhatbar/completion main
