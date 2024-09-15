@@ -34,7 +34,7 @@ jobs:
           echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
           echo "COMMIT_URL=${COMMIT_URL}" >> $GITHUB_ENV
 
-      - name: Send Email Notification
+      - name: Send Email Notification to primary email
         uses: cinotify/github-action@v1.6.0
         with:
           to: ${{ secrets.EMAIL_TO }}
