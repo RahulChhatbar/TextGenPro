@@ -14,8 +14,8 @@ This project is a text generation interface built with **Gradio** that allows us
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/your-repo.git
-   cd your-repo
+   git clone https://github.com/RahulChhatbar/Text-Generation.git
+   cd Text-Generation
    ```
 
 2. Install the required dependencies:
@@ -23,7 +23,7 @@ This project is a text generation interface built with **Gradio** that allows us
    pip install -r requirements.txt
    ```
 
-3. Set up the API key for the external API model. Export the key as an environment variable:
+3. Set up the API key for the external API model. You can get your API key from [https://app.hyperbolic.xyz/](https://app.hyperbolic.xyz/). Export the key as an environment variable:
    ```bash
    export HYPERBOLIC_API_KEY="your-api-key"
    ```
