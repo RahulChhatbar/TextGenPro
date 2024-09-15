@@ -24,5 +24,4 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git remote add hf https://RahulChhatbar:HF_TOKEN@huggingface.co/spaces/RahulChhatbar/completion
-          git push hf main
+          git push https://RahulChhatbar:HF_TOKEN@huggingface.co/spaces/RahulChhatbar/completion main
