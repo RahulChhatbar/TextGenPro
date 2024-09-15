@@ -48,5 +48,5 @@ jobs:
             Commit URL: ${{ env.COMMIT_URL }}</p>
           type: 'text/html'
         env:
-          EMAIL_TO: ${{ secrets.EMAIL_TO_1 }}
-          EMAIL_TO: ${{ secrets.EMAIL_TO_2 }}
+          EMAIL_TO_1: ${{ secrets.EMAIL_TO_1 }}
+          EMAIL_TO_2: ${{ secrets.EMAIL_TO_2 }}
