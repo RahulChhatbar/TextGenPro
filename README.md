@@ -1,4 +1,3 @@
-```markdown
 # Text Generation with API and Local GPT Models
 
 This project is a text generation interface built with **Gradio** that allows users to generate text using both a local GPT-2 model and an external API (OpenAI/Meta-LLaMA). The application provides configurable parameters for generating text and includes several example prompts for easy use.
@@ -61,10 +60,3 @@ You can customize the project by:
 - Changing the model used in the `local_generate_completion` function.
 - Modifying the interface layout in the Gradio blocks.
 - Adding more example prompts or modifying the existing ones.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
-
-You can copy and paste this directly into your `README.md` file. Let me know if you need further adjustments!
