@@ -13,22 +13,40 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Get Commit Details
+        id: commit_details
+        run: |
+          AUTHOR_NAME=$(git log -1 --pretty=format:'%an')
+          AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
+          COMMIT_HASH=$(git log -1 --pretty=format:'%h')
+          COMMIT_DATE=$(git log -1 --pretty=format:'%cd' --date=short)
+          COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          REPO_NAME=$(basename $(git rev-parse --show-toplevel))
+          COMMIT_URL="https://github.com/RahulChhatbar/Text-Generation/commit/${COMMIT_HASH}"
+
+          echo "AUTHOR_NAME=${AUTHOR_NAME}" >> $GITHUB_ENV
+          echo "AUTHOR_EMAIL=${AUTHOR_EMAIL}" >> $GITHUB_ENV
+          echo "COMMIT_HASH=${COMMIT_HASH}" >> $GITHUB_ENV
+          echo "COMMIT_DATE=${COMMIT_DATE}" >> $GITHUB_ENV
+          echo "COMMIT_MESSAGE=${COMMIT_MESSAGE}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
+          echo "COMMIT_URL=${COMMIT_URL}" >> $GITHUB_ENV
+
       - name: Send Email Notification
         uses: cinotify/github-action@v1.6.0
         with:
-          to: ${{ secrets.SMTP_TO }}
-          subject: 'Push Notification: ${GITHUB_REPOSITORY} - ${GITHUB_REF}'
+          to: ${{ secrets.EMAIL_TO }}
+          subject: 'Push Notification: ${{ env.REPO_NAME }} - ${{ env.BRANCH_NAME }}'
           body: |
-            <p>A push has been made to the branch ${GITHUB_REF} in repository ${GITHUB_REPOSITORY}!</p>
-            <p>Author: ${{ github.actor }} &lt;${{ github.event.pusher.email }}&gt;<br>
-            Commit Hash: ${{ github.sha }}<br>
-            Commit Date: ${{ github.event.head_commit.timestamp }}<br>
-            Commit Message: ${{ github.event.head_commit.message }}<br>
-            Commit URL: https://github.com/${{ github.repository }}/commit/${{ github.sha }}</p>
+            <p>A push has been made to the branch ${{ env.BRANCH_NAME }} in repository ${{ env.REPO_NAME }}!</p>
+            <p>Author: ${{ env.AUTHOR_NAME }} &lt;${{ env.AUTHOR_EMAIL }}&gt;<br>
+            Commit Hash: ${{ env.COMMIT_HASH }}<br>
+            Commit Date: ${{ env.COMMIT_DATE }}<br>
+            Commit Message: ${{ env.COMMIT_MESSAGE }}<br>
+            Commit URL: ${{ env.COMMIT_URL }}</p>
           type: 'text/html'
+          attachment: 'path/to/artifacts.zip'  # Adjust this path as necessary
         env:
-          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
