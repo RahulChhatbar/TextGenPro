@@ -47,6 +47,5 @@ jobs:
             Commit Message: ${{ env.COMMIT_MESSAGE }}<br>
             Commit URL: ${{ env.COMMIT_URL }}</p>
           type: 'text/html'
-          attachment: 'path/to/artifacts.zip'  # Adjust this path as necessary
         env:
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
