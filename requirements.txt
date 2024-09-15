@@ -1,4 +1,3 @@
 gradio
 openai
-torch
 transformers
