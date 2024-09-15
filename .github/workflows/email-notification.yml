@@ -37,7 +37,7 @@ jobs:
       - name: Send Email Notification to primary email
         uses: cinotify/github-action@v1.6.0
         with:
-          to: ${{ secrets.EMAIL_TO }}
+          to: ${{ secrets.EMAIL_TO_1 }},${{ secrets.EMAIL_TO_2 }}
           subject: 'Push Notification: ${{ env.REPO_NAME }} - ${{ env.BRANCH_NAME }}'
           body: |
             <p>A push has been made to the branch ${{ env.BRANCH_NAME }} in repository ${{ env.REPO_NAME }}!</p>
@@ -48,4 +48,5 @@ jobs:
             Commit URL: ${{ env.COMMIT_URL }}</p>
           type: 'text/html'
         env:
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO_1 }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO_2 }}
