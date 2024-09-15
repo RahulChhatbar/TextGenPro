@@ -1,5 +1,3 @@
-Here is the content you can directly paste into your `README.md` file in proper Markdown format:
-
 ```markdown
 # Text Generation with API and Local GPT Models
 
