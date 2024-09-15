@@ -1,0 +1,35 @@
+name: Email Notification
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Send Email Notification
+        uses: cinotify/github-action@v1.6.0
+        with:
+          to: ${{ secrets.SMTP_TO }}
+          subject: 'Push Notification: ${GITHUB_REPOSITORY} - ${GITHUB_REF}'
+          body: |
+            <p>A push has been made to the branch ${GITHUB_REF} in repository ${GITHUB_REPOSITORY}!</p>
+            <p>Author: ${{ github.actor }} &lt;${{ github.event.pusher.email }}&gt;<br>
+            Commit Hash: ${{ github.sha }}<br>
+            Commit Date: ${{ github.event.head_commit.timestamp }}<br>
+            Commit Message: ${{ github.event.head_commit.message }}<br>
+            Commit URL: https://github.com/${{ github.repository }}/commit/${{ github.sha }}</p>
+          type: 'text/html'
+          attachment: 'path/to/artifacts.zip'
+        env:
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
