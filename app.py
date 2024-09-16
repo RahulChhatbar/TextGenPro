@@ -67,8 +67,8 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
             output_text = gr.Textbox(label="Generated Completion", lines=10)
 
     with gr.Row():
-	with gr.Column():
-	    with gr.Accordion("API Model Parameters", open=False):
+        with gr.Column():
+            with gr.Accordion("API Model Parameters", open=False):
                 temperature_slider_api = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
                 repetition_penalty_slider_api = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
                 max_tokens_slider_api = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
