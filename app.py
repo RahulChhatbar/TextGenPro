@@ -4,8 +4,9 @@ from transformers import pipeline
 import os
 
 
-def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty):
+def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty, top_p):
     prompt = prompt.strip()
+    top_p, repetition_penalty = float(top_p), float(repetition_penalty)
     try:
         completion = pipeline("text-generation", model="gpt2")
         res = completion(
@@ -13,7 +14,8 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
             max_length=max_tokens,
             num_return_sequences=1,
             temperature=temperature,
-            repetition_penalty=repetition_penalty
+            repetition_penalty=repetition_penalty,
+	    top_p=top_p
         )
         generated_text = res[0]['generated_text']
         return generated_text[len(prompt) + 1:]
@@ -21,8 +23,9 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
         return f"An error occurred: {str(e)}"
 
 
-def generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase):
+def generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p):
     prompt = prompt.strip()
+    top_p, repetition_penalty = float(top_p), float(repetition_penalty)
     try:
         api_key = os.environ.get('HYPERBOLIC_API_KEY')
         client = OpenAI(
@@ -35,6 +38,7 @@ def generate_completion(prompt, temperature, repetition_penalty, max_tokens, sto
             temperature=temperature,
             frequency_penalty=repetition_penalty,
             max_tokens=max_tokens,
+	    top_p=top_p,
             stop=[stop_phrase] if stop_phrase else None
         )
         return completion.choices[0].text.strip()
@@ -62,19 +66,21 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
         with gr.Column():
             output_text = gr.Textbox(label="Generated Completion", lines=10)
 
-    with gr.Accordion("Additional Features", open=False):
-        with gr.Row():
-            with gr.Column():
-                gr.Markdown("### API Model Parameters")
+    with gr.Row():
+	with gr.Column():
+	    with gr.Accordion("API Model Parameters", open=False):
                 temperature_slider_api = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
                 repetition_penalty_slider_api = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
                 max_tokens_slider_api = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
+                top_p_slider_api = gr.Slider(minimum=0, maximum=1, value=1, step=0.01, label="Top-p (nucleus sampling)")
                 stop_phrase_input_api = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
-            with gr.Column():
-                gr.Markdown("### Local Model Parameters")
+
+        with gr.Column():
+            with gr.Accordion("Local Model Parameters", open=False):
                 temperature_slider_local = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
                 repetition_penalty_slider_local = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
                 max_tokens_slider_local = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
+                top_p_slider_local = gr.Slider(minimum=0, maximum=1, value=1, step=0.01, label="Top-p (nucleus sampling)")
 
     with gr.Row():
         generate_button = gr.Button("API Model Text Generation")
@@ -109,13 +115,13 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
 
     API_generation_event = generate_button.click(
         generate_completion,
-        inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, max_tokens_slider_api, stop_phrase_input_api],
+        inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, max_tokens_slider_api, stop_phrase_input_api, top_p_slider_api],
         outputs=output_text
     )
 
     local_generation_event = local_generate_button.click(
         local_generate_completion,
-        inputs=[prompt_input, max_tokens_slider_local, temperature_slider_local, repetition_penalty_slider_local],
+        inputs=[prompt_input, max_tokens_slider_local, temperature_slider_local, repetition_penalty_slider_local, top_p_slider_local],
         outputs=output_text
     )
 
