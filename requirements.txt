@@ -2,3 +2,4 @@ gradio
 openai
 transformers
 torch
+pytest

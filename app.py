@@ -138,4 +138,5 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
 
     stop_button.click(None, None, None, cancels=[API_generation_event, local_generation_event])
 
-iface.launch(share=False)
+if __name__ == "__main__":
+    iface.launch(share=False)
