@@ -21,6 +21,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run tests with timeout
+    - name: Run tests
       run: |
         pytest -v test.py || exit 1
