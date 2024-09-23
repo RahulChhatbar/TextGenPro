@@ -1,4 +1,5 @@
----
+David Gobran
+David Gobran---
 title: Text Completion
 emoji: 📚
 colorFrom: red
@@ -8,6 +9,7 @@ sdk_version: 4.44.0
 app_file: app.py
 pinned: false
 ---
+
 
 
 # Text Generation with API and Local GPT Models
