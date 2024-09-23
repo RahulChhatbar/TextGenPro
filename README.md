@@ -11,7 +11,6 @@ pinned: false
 ---
 
 
-
 # Text Generation with API and Local GPT Models
 
 This project is a text generation interface built with **Gradio** that allows users to generate text using both a local GPT-2 model and an external API (OpenAI/Meta-LLaMA). The application provides configurable parameters for generating text and includes several example prompts for easy use.
