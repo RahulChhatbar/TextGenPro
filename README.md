@@ -1,5 +1,4 @@
-David Gobran
-David Gobran---
+---
 title: Text Completion
 emoji: 📚
 colorFrom: red
