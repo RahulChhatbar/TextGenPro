@@ -57,9 +57,66 @@ def clear_fields():
 
 def update_prompt(selected_example):
     return selected_example, ""
+    
+js = """
+function createGradioAnimation() {
+    var container = document.createElement('div');
+    container.id = 'gradio-animation';
+    container.style.textAlign = 'center';
+    container.style.marginBottom = '20px';
 
+    // Create a container for the entire line
+    var lineContainer = document.createElement('div');
+    lineContainer.style.fontSize = '2.5em';
+    lineContainer.style.fontWeight = 'bold';
+    
+    // "Welcome to" normal text
+    var welcomeText = document.createElement('span');
+    welcomeText.innerText = 'Welcome to, ';
+    welcomeText.style.fontWeight = 'normal'; // Keep "Welcome to" normal
+    welcomeText.style.fontSize = '0.65em'; // Reduce font size
+    lineContainer.appendChild(welcomeText);
 
-with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red; color: white;}") as iface:
+    // Fancy "TextGenPro" text
+    var fancyText = document.createElement('span');
+    fancyText.style.color = '#eab440';
+    fancyText.style.display = 'inline-block';
+    fancyText.style.textShadow = '0 1px #0267c1, -1px 0 #0093f5, -1px 2px #0267c1, -2px 1px #0093f5, -2px 3px #0267c1, -3px 2px #0093f5, -3px 4px #0267c1, -4px 3px #0093f5, -4px 5px #0267c1, -5px 4px #0093f5, -5px 6px #0267c1, -6px 5px #0093f5, -6px 7px #0267c1, 2px 2px 2px rgba(206, 89, 55, 0)';
+
+    var text = 'TextGenPro'; 
+    for (var i = 0; i < text.length; i++) {
+        (function(i) {
+            setTimeout(function() {
+                var letter = document.createElement('span');
+                letter.style.opacity = '0';
+                letter.style.transition = 'opacity 0.5s, transform 0.5s'; // Animation for opacity and transform
+                letter.innerText = text[i];
+
+                // Set initial scale and rotation
+                letter.style.transform = 'scale(0.5) rotate(-10deg)';
+
+                fancyText.appendChild(letter);
+
+                setTimeout(function() {
+                    letter.style.opacity = '1';
+                    letter.style.transform = 'scale(1) rotate(0deg)'; // Final scaling and rotation
+                }, 50);
+            }, i * 150); // Slight delay for each letter
+        })(i);
+    }
+
+    lineContainer.appendChild(fancyText);
+
+    container.appendChild(lineContainer);
+
+    var gradioContainer = document.querySelector('.gradio-container');
+    gradioContainer.insertBefore(container, gradioContainer.firstChild);
+
+    return 'Fancy single-line animation created';
+}
+"""
+
+with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red; color: white;}", js=js) as iface:
     with gr.Row():
         with gr.Column():
             prompt_input = gr.Textbox(label="Prompt", value="Today is a beautiful day for", lines=10)
