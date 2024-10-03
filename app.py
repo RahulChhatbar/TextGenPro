@@ -161,14 +161,14 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
     examples_dropdown = gr.Dropdown(
         label="Example Prompts",
         choices=example_prompts[1:],
-        value=example_prompts[0]
+        value=example_prompts[0],
+        allow_custom_value=True
     )
 
     examples_dropdown.change(
         update_prompt,
         inputs=[examples_dropdown],
-        outputs=[prompt_input, output_text],
-        allow_custom_value=True
+        outputs=[prompt_input, output_text]
     )
 
     API_generation_event = generate_button.click(
