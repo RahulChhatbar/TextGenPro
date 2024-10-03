@@ -57,7 +57,7 @@ def clear_fields():
 
 def update_prompt(selected_example):
     return selected_example, ""
-    
+
 js = """
 function createGradioAnimation() {
     var container = document.createElement('div');
@@ -69,7 +69,7 @@ function createGradioAnimation() {
     var lineContainer = document.createElement('div');
     lineContainer.style.fontSize = '2.5em';
     lineContainer.style.fontWeight = 'bold';
-    
+
     // "Welcome to" normal text
     var welcomeText = document.createElement('span');
     welcomeText.innerText = 'Welcome to, ';
@@ -171,7 +171,7 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
         outputs=[prompt_input, output_text]
     )
 
-    api_generation_event = generate_button.click(
+    api_generation_event = api_generate_button.click(
         api_generate_completion,
         inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, max_tokens_slider_api, stop_phrase_input_api, top_p_slider_api],
         outputs=output_text
