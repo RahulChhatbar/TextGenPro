@@ -23,7 +23,7 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
         return f"An error occurred: {str(e)}"
 
 
-def generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p):
+def api_generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p):
     prompt = prompt.strip()
     top_p, repetition_penalty = float(top_p), float(repetition_penalty)
     try:
@@ -140,7 +140,7 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
                 top_p_slider_local = gr.Slider(minimum=0, maximum=1, value=1, step=0.01, label="Top-p (nucleus sampling)")
 
     with gr.Row():
-        generate_button = gr.Button("API Model Text Generation")
+        api_generate_button = gr.Button("API Model Text Generation")
         local_generate_button = gr.Button("Local Model Text Generation")
         append_button = gr.Button("Append Completion to Prompt")
         clear_button = gr.Button("Clear All Fields")
@@ -171,8 +171,8 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
         outputs=[prompt_input, output_text]
     )
 
-    API_generation_event = generate_button.click(
-        generate_completion,
+    api_generation_event = generate_button.click(
+        api_generate_completion,
         inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, max_tokens_slider_api, stop_phrase_input_api, top_p_slider_api],
         outputs=output_text
     )
@@ -194,7 +194,7 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
         outputs=[prompt_input, output_text]
     )
 
-    stop_button.click(None, None, None, cancels=[API_generation_event, local_generation_event])
+    stop_button.click(None, None, None, cancels=[api_generation_event, local_generation_event])
 
 if __name__ == "__main__":
     iface.launch(share=False)
