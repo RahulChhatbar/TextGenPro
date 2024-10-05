@@ -3,9 +3,11 @@ from openai import OpenAI
 from transformers import pipeline
 import os
 
-api_key = os.environ.get('HYPERBOLIC_API_KEY')
-if api_key is None:
-    raise ValueError("Please set the HYPERBOLIC_API_KEY environment variable.")
+def check_api_key():
+    api_key = os.environ.get('HYPERBOLIC_API_KEY')
+    if api_key is None:
+        raise ValueError("Please set the HYPERBOLIC_API_KEY environment variable.")
+    return api_key
 
 def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty, top_p):
     prompt = prompt.strip()
@@ -60,143 +62,146 @@ def clear_fields():
 def update_prompt(selected_example):
     return selected_example, ""
 
-js = """
-function createGradioAnimation() {
-    var container = document.createElement('div');
-    container.id = 'gradio-animation';
-    container.style.textAlign = 'center';
-    container.style.marginBottom = '20px';
-
-    // Create a container for the entire line
-    var lineContainer = document.createElement('div');
-    lineContainer.style.fontSize = '2.5em';
-    lineContainer.style.fontWeight = 'bold';
-
-    // "Welcome to" normal text
-    var welcomeText = document.createElement('span');
-    welcomeText.innerText = 'Welcome to, ';
-    welcomeText.style.fontWeight = 'normal'; // Keep "Welcome to" normal
-    welcomeText.style.fontSize = '0.65em'; // Reduce font size
-    lineContainer.appendChild(welcomeText);
-
-    // Fancy "TextGenPro" text
-    var fancyText = document.createElement('span');
-    fancyText.style.color = '#eab440';
-    fancyText.style.display = 'inline-block';
-    fancyText.style.textShadow = '0 1px #0267c1, -1px 0 #0093f5, -1px 2px #0267c1, -2px 1px #0093f5, -2px 3px #0267c1, -3px 2px #0093f5, -3px 4px #0267c1, -4px 3px #0093f5, -4px 5px #0267c1, -5px 4px #0093f5, -5px 6px #0267c1, -6px 5px #0093f5, -6px 7px #0267c1, 2px 2px 2px rgba(206, 89, 55, 0)';
-
-    var text = 'TextGenPro'; 
-    for (var i = 0; i < text.length; i++) {
-        (function(i) {
-            setTimeout(function() {
-                var letter = document.createElement('span');
-                letter.style.opacity = '0';
-                letter.style.transition = 'opacity 0.5s, transform 0.5s'; // Animation for opacity and transform
-                letter.innerText = text[i];
-
-                // Set initial scale and rotation
-                letter.style.transform = 'scale(0.5) rotate(-10deg)';
-
-                fancyText.appendChild(letter);
-
-                setTimeout(function() {
-                    letter.style.opacity = '1';
-                    letter.style.transform = 'scale(1) rotate(0deg)'; // Final scaling and rotation
-                }, 50);
-            }, i * 150); // Slight delay for each letter
-        })(i);
-    }
-
-    lineContainer.appendChild(fancyText);
-
-    container.appendChild(lineContainer);
-
-    var gradioContainer = document.querySelector('.gradio-container');
-    gradioContainer.insertBefore(container, gradioContainer.firstChild);
-
-    return 'Fancy single-line animation created';
-}
-"""
-
-with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red; color: white;}", js=js) as iface:
-    with gr.Row():
-        with gr.Column():
-            prompt_input = gr.Textbox(label="Prompt", value="Today is a beautiful day for", lines=10)
-        with gr.Column():
-            output_text = gr.Textbox(label="Generated Completion", lines=10)
-
-    with gr.Row():
-        with gr.Column():
-            with gr.Accordion("API Model Parameters", open=False):
-                temperature_slider_api = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-                repetition_penalty_slider_api = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
-                max_tokens_slider_api = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
-                top_p_slider_api = gr.Slider(minimum=0, maximum=1, value=1, step=0.01, label="Top-p (nucleus sampling)")
-                stop_phrase_input_api = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
-
-        with gr.Column():
-            with gr.Accordion("Local Model Parameters", open=False):
-                temperature_slider_local = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-                repetition_penalty_slider_local = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
-                max_tokens_slider_local = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
-                top_p_slider_local = gr.Slider(minimum=0, maximum=1, value=1, step=0.01, label="Top-p (nucleus sampling)")
-
-    with gr.Row():
-        api_generate_button = gr.Button("API Model Text Generation")
-        local_generate_button = gr.Button("Local Model Text Generation")
-        append_button = gr.Button("Append Completion to Prompt")
-        clear_button = gr.Button("Clear All Fields")
-
-    with gr.Row():
-        stop_button = gr.Button("Stop Generation", elem_id="stop-button")
-
-    example_prompts = [
-        "Select Example Prompt",
-        "As the clock struck midnight, she discovered a hidden message that said",
-        "She had always dreamed of traveling to Paris, but her first stop was",
-        "The new cafe in town serves a special latte that tastes like",
-        "He promised to finish the project by Friday, but something unexpected happened",
-        "After months of searching, the treasure map led them to a hidden cave with",
-        "As she opened the old book, a dusty letter fell out, saying"
-    ]
-
-    examples_dropdown = gr.Dropdown(
-        label="Example Prompts",
-        choices=example_prompts[1:],
-        value=example_prompts[0],
-        allow_custom_value=True
-    )
-
-    examples_dropdown.change(
-        update_prompt,
-        inputs=[examples_dropdown],
-        outputs=[prompt_input, output_text]
-    )
-
-    api_generation_event = api_generate_button.click(
-        lambda prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p: api_generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p, api_key),
-        inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, max_tokens_slider_api, stop_phrase_input_api, top_p_slider_api],
-        outputs=output_text
-    )
-
-    local_generation_event = local_generate_button.click(
-        local_generate_completion,
-        inputs=[prompt_input, max_tokens_slider_local, temperature_slider_local, repetition_penalty_slider_local, top_p_slider_local],
-        outputs=output_text
-    )
-
-    append_button.click(
-        append_completion,
-        inputs=[prompt_input, output_text],
-        outputs=[prompt_input, output_text]
-    )
-
-    clear_button.click(
-        clear_fields,
-        outputs=[prompt_input, output_text]
-    )
-
-    stop_button.click(None, None, None, cancels=[api_generation_event, local_generation_event])
 
 if __name__ == "__main__":
+    api_key = check_api_key()
+
+    js = """
+    function createGradioAnimation() {
+        var container = document.createElement('div');
+        container.id = 'gradio-animation';
+        container.style.textAlign = 'center';
+        container.style.marginBottom = '20px';
+    
+        // Create a container for the entire line
+        var lineContainer = document.createElement('div');
+        lineContainer.style.fontSize = '2.5em';
+        lineContainer.style.fontWeight = 'bold';
+    
+        // "Welcome to" normal text
+        var welcomeText = document.createElement('span');
+        welcomeText.innerText = 'Welcome to, ';
+        welcomeText.style.fontWeight = 'normal'; // Keep "Welcome to" normal
+        welcomeText.style.fontSize = '0.65em'; // Reduce font size
+        lineContainer.appendChild(welcomeText);
+    
+        // Fancy "TextGenPro" text
+        var fancyText = document.createElement('span');
+        fancyText.style.color = '#eab440';
+        fancyText.style.display = 'inline-block';
+        fancyText.style.textShadow = '0 1px #0267c1, -1px 0 #0093f5, -1px 2px #0267c1, -2px 1px #0093f5, -2px 3px #0267c1, -3px 2px #0093f5, -3px 4px #0267c1, -4px 3px #0093f5, -4px 5px #0267c1, -5px 4px #0093f5, -5px 6px #0267c1, -6px 5px #0093f5, -6px 7px #0267c1, 2px 2px 2px rgba(206, 89, 55, 0)';
+    
+        var text = 'TextGenPro'; 
+        for (var i = 0; i < text.length; i++) {
+            (function(i) {
+                setTimeout(function() {
+                    var letter = document.createElement('span');
+                    letter.style.opacity = '0';
+                    letter.style.transition = 'opacity 0.5s, transform 0.5s'; // Animation for opacity and transform
+                    letter.innerText = text[i];
+    
+                    // Set initial scale and rotation
+                    letter.style.transform = 'scale(0.5) rotate(-10deg)';
+    
+                    fancyText.appendChild(letter);
+    
+                    setTimeout(function() {
+                        letter.style.opacity = '1';
+                        letter.style.transform = 'scale(1) rotate(0deg)'; // Final scaling and rotation
+                    }, 50);
+                }, i * 150); // Slight delay for each letter
+            })(i);
+        }
+    
+        lineContainer.appendChild(fancyText);
+    
+        container.appendChild(lineContainer);
+    
+        var gradioContainer = document.querySelector('.gradio-container');
+        gradioContainer.insertBefore(container, gradioContainer.firstChild);
+    
+        return 'Fancy single-line animation created';
+    }
+    """
+
+    with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red; color: white;}", js=js) as iface:
+        with gr.Row():
+            with gr.Column():
+                prompt_input = gr.Textbox(label="Prompt", value="Today is a beautiful day for", lines=10)
+            with gr.Column():
+                output_text = gr.Textbox(label="Generated Completion", lines=10)
+
+        with gr.Row():
+            with gr.Column():
+                with gr.Accordion("API Model Parameters", open=False):
+                    temperature_slider_api = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
+                    repetition_penalty_slider_api = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
+                    max_tokens_slider_api = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
+                    top_p_slider_api = gr.Slider(minimum=0, maximum=1, value=1, step=0.01, label="Top-p (nucleus sampling)")
+                    stop_phrase_input_api = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
+
+            with gr.Column():
+                with gr.Accordion("Local Model Parameters", open=False):
+                    temperature_slider_local = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
+                    repetition_penalty_slider_local = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1, label="Repetition Penalty")
+                    max_tokens_slider_local = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
+                    top_p_slider_local = gr.Slider(minimum=0, maximum=1, value=1, step=0.01, label="Top-p (nucleus sampling)")
+
+        with gr.Row():
+            api_generate_button = gr.Button("API Model Text Generation")
+            local_generate_button = gr.Button("Local Model Text Generation")
+            append_button = gr.Button("Append Completion to Prompt")
+            clear_button = gr.Button("Clear All Fields")
+
+        with gr.Row():
+            stop_button = gr.Button("Stop Generation", elem_id="stop-button")
+
+        example_prompts = [
+            "Select Example Prompt",
+            "As the clock struck midnight, she discovered a hidden message that said",
+            "She had always dreamed of traveling to Paris, but her first stop was",
+            "The new cafe in town serves a special latte that tastes like",
+            "He promised to finish the project by Friday, but something unexpected happened",
+            "After months of searching, the treasure map led them to a hidden cave with",
+            "As she opened the old book, a dusty letter fell out, saying"
+        ]
+
+        examples_dropdown = gr.Dropdown(
+            label="Example Prompts",
+            choices=example_prompts[1:],
+            value=example_prompts[0],
+            allow_custom_value=True
+        )
+
+        examples_dropdown.change(
+            update_prompt,
+            inputs=[examples_dropdown],
+            outputs=[prompt_input, output_text]
+        )
+
+        api_generation_event = api_generate_button.click(
+            lambda prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p: api_generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p, api_key),
+            inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, max_tokens_slider_api, stop_phrase_input_api, top_p_slider_api],
+            outputs=output_text
+        )
+
+        local_generation_event = local_generate_button.click(
+            local_generate_completion,
+            inputs=[prompt_input, max_tokens_slider_local, temperature_slider_local, repetition_penalty_slider_local, top_p_slider_local],
+            outputs=output_text
+        )
+
+        append_button.click(
+            append_completion,
+            inputs=[prompt_input, output_text],
+            outputs=[prompt_input, output_text]
+        )
+
+        clear_button.click(
+            clear_fields,
+            outputs=[prompt_input, output_text]
+        )
+
+        stop_button.click(None, None, None, cancels=[api_generation_event, local_generation_event])
+
     iface.launch(share=False)

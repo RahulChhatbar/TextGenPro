@@ -2,6 +2,11 @@ import pytest
 from app import local_generate_completion, append_completion, clear_fields, update_prompt
 
 
+@pytest.fixture(autouse=True)
+def set_api_key(monkeypatch):
+    monkeypatch.setenv("HYPERBOLIC_API_KEY", "test_api_key")
+    
+
 @pytest.mark.timeout(10)
 def test_append_completion():
     prompt = "  Test prompt      "
