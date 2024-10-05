@@ -3,6 +3,9 @@ from openai import OpenAI
 from transformers import pipeline
 import os
 
+api_key = os.environ.get('HYPERBOLIC_API_KEY')
+if api_key is None:
+    raise ValueError("Please set the HYPERBOLIC_API_KEY environment variable.")
 
 def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty, top_p):
     prompt = prompt.strip()
@@ -23,11 +26,10 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
         return f"An error occurred: {str(e)}"
 
 
-def api_generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p):
+def api_generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p, api_key):
     prompt = prompt.strip()
     top_p, repetition_penalty = float(top_p), float(repetition_penalty)
     try:
-        api_key = os.environ.get('HYPERBOLIC_API_KEY')
         client = OpenAI(
             base_url="https://api.hyperbolic.xyz/v1",
             api_key=api_key,
@@ -172,7 +174,7 @@ with gr.Blocks(theme=gr.themes.Soft(), css="#stop-button {background-color: red;
     )
 
     api_generation_event = api_generate_button.click(
-        api_generate_completion,
+        lambda prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p: api_generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p, api_key),
         inputs=[prompt_input, temperature_slider_api, repetition_penalty_slider_api, max_tokens_slider_api, stop_phrase_input_api, top_p_slider_api],
         outputs=output_text
     )
