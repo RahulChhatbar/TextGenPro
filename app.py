@@ -20,7 +20,9 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
             num_return_sequences=1,
             temperature=temperature,
             repetition_penalty=repetition_penalty,
-	    top_p=top_p
+	    top_p=top_p,
+            truncation=True,
+            clean_up_tokenization_spaces=True
         )
         generated_text = res[0]['generated_text']
         return generated_text[len(prompt) + 1:]
