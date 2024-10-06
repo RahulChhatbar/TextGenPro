@@ -16,7 +16,7 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
         completion = pipeline("text-generation", model="gpt2")
         res = completion(
             prompt,
-            max_length=max_tokens,
+            max_length=len(prompt) + max_tokens,
             num_return_sequences=1,
             temperature=temperature,
             repetition_penalty=repetition_penalty,
