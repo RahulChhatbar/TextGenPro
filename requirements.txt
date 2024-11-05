@@ -4,3 +4,4 @@ gradio
 openai
 transformers
 pytest
+prometheus_client
