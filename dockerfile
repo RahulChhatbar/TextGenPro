@@ -8,9 +8,16 @@ WORKDIR /opt/app
 COPY requirements.txt .
 RUN python -m pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && \
+    apt-get upgrade -yq ca-certificates && \
+    apt-get install -yq --no-install-recommends \
+    prometheus-node-exporter
 
 # Copy the rest of the application files into the container
 COPY . .
+
+ENV GRADIO_SERVER_NAME="0.0.0.0"
+ENV DEBIAN_FRONTEND noninteractive
 
 # Expose the port your application runs on
 EXPOSE 7860
