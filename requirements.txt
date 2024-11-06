@@ -1,7 +1,14 @@
+# PyTorch (CPU version)
 -f https://download.pytorch.org/whl/torch_stable.html
 torch==2.3.0+cpu
+
+# Other dependencies
 gradio
 openai
 transformers
 pytest
 prometheus_client
+gspread
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
