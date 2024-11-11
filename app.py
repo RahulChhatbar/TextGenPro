@@ -256,4 +256,4 @@ if __name__ == "__main__":
 
         stop_button.click(None, None, None, cancels=[api_generation_event, local_generation_event])
 
-    iface.launch(share=False, before_launch=user_join, clean_up=user_leave)
+    iface.launch(share=False)
