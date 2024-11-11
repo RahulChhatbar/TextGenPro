@@ -40,9 +40,9 @@ def user_join():
 
 def memory_usage_update():
     mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    MEMORY_USAGE.set(mem * 1024)
-    
-    
+    MEMORY_USAGE.set(mem)
+
+
 def user_leave():
     ACTIVE_USER_COUNT.dec()
 
@@ -52,6 +52,7 @@ def user_leave():
 def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty, top_p):
     LOCAL_REQUEST_COUNT.inc()
     LOCAL_ACTIVE_REQUEST_COUNT.inc()
+    memory_usage_update()
     prompt = prompt.strip()
     top_p, repetition_penalty = float(top_p), float(repetition_penalty)
     try:
@@ -83,6 +84,7 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
 def api_generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p, api_key):
     API_REQUEST_COUNT.inc()
     API_ACTIVE_REQUEST_COUNT.inc()
+    memory_usage_update()
     prompt = prompt.strip()
     top_p, repetition_penalty = float(top_p), float(repetition_penalty)
     try:
