@@ -3,17 +3,21 @@ from openai import OpenAI
 from transformers import pipeline
 import os
 import time
-from prometheus_client import Summary, Counter, start_http_server
+from prometheus_client import Summary, Counter, Gauge, start_http_server
 
 LOCAL_REQUEST_COUNT = Counter('local_product_request_count', 'Total number of requests to Local Product')
 LOCAL_SUCCESS_COUNT = Counter('local_product_success_count', 'Total number of successful requests in Local Product')
 LOCAL_ERROR_COUNT = Counter('local_product_error_count', 'Total number of errors in Local Product')
 LOCAL_REQUEST_TIME = Summary('local_product_request_processing_seconds', 'Time spent processing requests in Local Product')
+LOCAL_ACTIVE_REQUEST_COUNT = Gauge('local_product_active_request_count', 'Number of active requests in Local Product')
 
 API_REQUEST_COUNT = Counter('api_product_request_count', 'Total number of requests to API Product')
 API_SUCCESS_COUNT = Counter('api_product_success_count', 'Total number of successful requests in API Product')
 API_ERROR_COUNT = Counter('api_product_error_count', 'Total number of errors in API Product')
 API_REQUEST_TIME = Summary('api_product_request_processing_seconds', 'Time spent processing requests in API Product')
+API_ACTIVE_REQUEST_COUNT = Gauge('api_product_active_request_count', 'Number of active requests in API Product')
+
+ACTIVE_USER_COUNT = Gauge('active_user_count', 'Number of active users')
 
 
 def check_api_key():
@@ -23,9 +27,18 @@ def check_api_key():
     return api_key
 
 
+def user_join():
+    ACTIVE_USER_COUNT.inc()
+
+
+def user_leave():
+    ACTIVE_USER_COUNT.dec()
+
+
 @LOCAL_REQUEST_TIME.time()
 def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty, top_p):
     LOCAL_REQUEST_COUNT.inc()
+    LOCAL_ACTIVE_REQUEST_COUNT.inc()
     prompt = prompt.strip()
     top_p, repetition_penalty = float(top_p), float(repetition_penalty)
     try:
@@ -42,15 +55,18 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
         )
         generated_text = res[0]['generated_text']
         LOCAL_SUCCESS_COUNT.inc()
+        LOCAL_ACTIVE_REQUEST_COUNT.dec()
         return generated_text[len(prompt) + 1:]
     except Exception as e:
         LOCAL_ERROR_COUNT.inc()
+        LOCAL_ACTIVE_REQUEST_COUNT.dec()
         return f"An error occurred: {str(e)}"
 
 
 @API_REQUEST_TIME.time()
 def api_generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p, api_key):
     API_REQUEST_COUNT.inc()
+    API_ACTIVE_REQUEST_COUNT.inc()
     prompt = prompt.strip()
     top_p, repetition_penalty = float(top_p), float(repetition_penalty)
     try:
@@ -68,9 +84,11 @@ def api_generate_completion(prompt, temperature, repetition_penalty, max_tokens,
             stop=[stop_phrase] if stop_phrase else None
         )
         API_SUCCESS_COUNT.inc()
+        API_ACTIVE_REQUEST_COUNT.dec()
         return completion.choices[0].text.strip()
     except Exception as e:
         API_ERROR_COUNT.inc()
+        API_ACTIVE_REQUEST_COUNT.dec()
         return f"An error occurred: {str(e)}"
 
 
@@ -238,4 +256,4 @@ if __name__ == "__main__":
 
         stop_button.click(None, None, None, cancels=[api_generation_event, local_generation_event])
 
-    iface.launch(share=False)
+    iface.launch(share=False, before_launch=user_join, clean_up=user_leave)
