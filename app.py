@@ -3,6 +3,7 @@ from openai import OpenAI
 from transformers import pipeline
 import os
 import time
+import resource
 from prometheus_client import Summary, Counter, Gauge, Histogram, start_http_server
 
 LOCAL_REQUEST_COUNT = Counter('local_product_request_count', 'Total number of requests to Local Product')
@@ -24,7 +25,7 @@ API_REQUEST_TIME_HISTOGRAM = Histogram('api_product_request_processing_seconds_h
                                         buckets=[10 * i for i in range(1, 13)] + [float('inf')])
 
 ACTIVE_USER_COUNT = Gauge('active_user_count', 'Number of active users')
-
+MEMORY_USAGE = Gauge('memory_usage', 'Memory usage in bytes')
 
 def check_api_key():
     api_key = os.environ.get('HYPERBOLIC_API_KEY')
@@ -37,6 +38,11 @@ def user_join():
     ACTIVE_USER_COUNT.inc()
 
 
+def memory_usage_update():
+    mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    MEMORY_USAGE.set(mem * 1024)
+    
+    
 def user_leave():
     ACTIVE_USER_COUNT.dec()
 
@@ -63,10 +69,12 @@ def local_generate_completion(prompt, max_tokens, temperature, repetition_penalt
         generated_text = res[0]['generated_text']
         LOCAL_SUCCESS_COUNT.inc()
         LOCAL_ACTIVE_REQUEST_COUNT.dec()
+        memory_usage_update()
         return generated_text[len(prompt) + 1:]
     except Exception as e:
         LOCAL_ERROR_COUNT.inc()
         LOCAL_ACTIVE_REQUEST_COUNT.dec()
+        memory_usage_update()
         return f"An error occurred: {str(e)}"
 
 
@@ -93,10 +101,12 @@ def api_generate_completion(prompt, temperature, repetition_penalty, max_tokens,
         )
         API_SUCCESS_COUNT.inc()
         API_ACTIVE_REQUEST_COUNT.dec()
+        memory_usage_update()
         return completion.choices[0].text.strip()
     except Exception as e:
         API_ERROR_COUNT.inc()
         API_ACTIVE_REQUEST_COUNT.dec()
+        memory_usage_update()
         return f"An error occurred: {str(e)}"
 
 
