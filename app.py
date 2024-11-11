@@ -10,7 +10,7 @@ LOCAL_REQUEST_COUNT = Counter('local_product_request_count', 'Total number of re
 LOCAL_SUCCESS_COUNT = Counter('local_product_success_count', 'Total number of successful requests in Local Product')
 LOCAL_ERROR_COUNT = Counter('local_product_error_count', 'Total number of errors in Local Product')
 LOCAL_REQUEST_TIME = Summary('local_product_request_processing_seconds', 'Time spent processing requests in Local Product')
-LOCAL_ACTIVE_REQUEST_COUNT = Gauge('local_product_active_request_count', 'Number of active requests in Local Product')
+LOCAL_ACTIVE_REQUEST_COUNT = Counter('local_product_active_request_count', 'Number of active requests in Local Product')
 LOCAL_REQUEST_TIME_HISTOGRAM = Histogram('local_product_request_processing_seconds_histogram',
                                          'Histogram of request processing times in Local Product',
                                          buckets=[10 * i for i in range(1, 13)] + [float('inf')])
@@ -19,7 +19,7 @@ API_REQUEST_COUNT = Counter('api_product_request_count', 'Total number of reques
 API_SUCCESS_COUNT = Counter('api_product_success_count', 'Total number of successful requests in API Product')
 API_ERROR_COUNT = Counter('api_product_error_count', 'Total number of errors in API Product')
 API_REQUEST_TIME = Summary('api_product_request_processing_seconds', 'Time spent processing requests in API Product')
-API_ACTIVE_REQUEST_COUNT = Gauge('api_product_active_request_count', 'Number of active requests in API Product')
+API_ACTIVE_REQUEST_COUNT = Counter('api_product_active_request_count', 'Number of active requests in API Product')
 API_REQUEST_TIME_HISTOGRAM = Histogram('api_product_request_processing_seconds_histogram',
                                         'Histogram of request processing times in API Product',
                                         buckets=[10 * i for i in range(1, 13)] + [float('inf')])
