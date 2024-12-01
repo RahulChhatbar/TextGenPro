@@ -1,31 +1,6 @@
 import gradio as gr
 from openai import OpenAI
-from transformers import pipeline
 import os
-import time
-import resource
-from prometheus_client import Summary, Counter, Gauge, Histogram, start_http_server
-
-LOCAL_REQUEST_COUNT = Counter('local_product_request_count', 'Total number of requests to Local Product')
-LOCAL_SUCCESS_COUNT = Counter('local_product_success_count', 'Total number of successful requests in Local Product')
-LOCAL_ERROR_COUNT = Counter('local_product_error_count', 'Total number of errors in Local Product')
-LOCAL_REQUEST_TIME = Summary('local_product_request_processing_seconds', 'Time spent processing requests in Local Product')
-LOCAL_ACTIVE_REQUEST_COUNT = Counter('local_product_active_request_count', 'Number of active requests in Local Product')
-LOCAL_REQUEST_TIME_HISTOGRAM = Histogram('local_product_request_processing_seconds_histogram',
-                                         'Histogram of request processing times in Local Product',
-                                         buckets=[10 * i for i in range(1, 13)] + [float('inf')])
-
-API_REQUEST_COUNT = Counter('api_product_request_count', 'Total number of requests to API Product')
-API_SUCCESS_COUNT = Counter('api_product_success_count', 'Total number of successful requests in API Product')
-API_ERROR_COUNT = Counter('api_product_error_count', 'Total number of errors in API Product')
-API_REQUEST_TIME = Summary('api_product_request_processing_seconds', 'Time spent processing requests in API Product')
-API_ACTIVE_REQUEST_COUNT = Counter('api_product_active_request_count', 'Number of active requests in API Product')
-API_REQUEST_TIME_HISTOGRAM = Histogram('api_product_request_processing_seconds_histogram',
-                                        'Histogram of request processing times in API Product',
-                                        buckets=[10 * i for i in range(1, 13)] + [float('inf')])
-
-ACTIVE_USER_COUNT = Gauge('active_user_count', 'Number of active users')
-MEMORY_USAGE = Gauge('memory_usage', 'Memory usage in bytes')
 
 def check_api_key():
     api_key = os.environ.get('HYPERBOLIC_API_KEY')
@@ -34,57 +9,7 @@ def check_api_key():
     return api_key
 
 
-def user_join():
-    ACTIVE_USER_COUNT.inc()
-
-
-def memory_usage_update():
-    mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    MEMORY_USAGE.set(mem)
-
-
-def user_leave():
-    ACTIVE_USER_COUNT.dec()
-
-
-@LOCAL_REQUEST_TIME.time()
-@LOCAL_REQUEST_TIME_HISTOGRAM.time()
-def local_generate_completion(prompt, max_tokens, temperature, repetition_penalty, top_p):
-    LOCAL_REQUEST_COUNT.inc()
-    LOCAL_ACTIVE_REQUEST_COUNT.inc()
-    memory_usage_update()
-    prompt = prompt.strip()
-    top_p, repetition_penalty = float(top_p), float(repetition_penalty)
-    try:
-        completion = pipeline("text-generation", model="gpt2")
-        res = completion(
-            prompt,
-            max_length=len(prompt) + max_tokens,
-            num_return_sequences=1,
-            temperature=temperature,
-            repetition_penalty=repetition_penalty,
-            top_p=top_p,
-            truncation=True,
-            clean_up_tokenization_spaces=True
-        )
-        generated_text = res[0]['generated_text']
-        LOCAL_SUCCESS_COUNT.inc()
-        LOCAL_ACTIVE_REQUEST_COUNT.dec()
-        memory_usage_update()
-        return generated_text[len(prompt) + 1:]
-    except Exception as e:
-        LOCAL_ERROR_COUNT.inc()
-        LOCAL_ACTIVE_REQUEST_COUNT.dec()
-        memory_usage_update()
-        return f"An error occurred: {str(e)}"
-
-
-@API_REQUEST_TIME.time()
-@API_REQUEST_TIME_HISTOGRAM.time()
 def api_generate_completion(prompt, temperature, repetition_penalty, max_tokens, stop_phrase, top_p, api_key):
-    API_REQUEST_COUNT.inc()
-    API_ACTIVE_REQUEST_COUNT.inc()
-    memory_usage_update()
     prompt = prompt.strip()
     top_p, repetition_penalty = float(top_p), float(repetition_penalty)
     try:
@@ -101,14 +26,8 @@ def api_generate_completion(prompt, temperature, repetition_penalty, max_tokens,
             top_p=top_p,
             stop=[stop_phrase] if stop_phrase else None
         )
-        API_SUCCESS_COUNT.inc()
-        API_ACTIVE_REQUEST_COUNT.dec()
-        memory_usage_update()
         return completion.choices[0].text.strip()
     except Exception as e:
-        API_ERROR_COUNT.inc()
-        API_ACTIVE_REQUEST_COUNT.dec()
-        memory_usage_update()
         return f"An error occurred: {str(e)}"
 
 
@@ -127,9 +46,6 @@ def update_prompt(selected_example):
 
 if __name__ == "__main__":
     api_key = check_api_key()
-
-    start_http_server(8000)
-    print("Prometheus metrics being served on port 8000")
 
     js = """
     function createGradioAnimation() {
@@ -207,18 +123,8 @@ if __name__ == "__main__":
                                                  label="Top-p (nucleus sampling)")
                     stop_phrase_input_api = gr.Textbox(label="Stop Phrase", placeholder="Enter stop phrase (optional)")
 
-            with gr.Column():
-                with gr.Accordion("Local Model Parameters", open=False):
-                    temperature_slider_local = gr.Slider(minimum=0, maximum=1, value=0.7, step=0.1, label="Temperature")
-                    repetition_penalty_slider_local = gr.Slider(minimum=1, maximum=5, value=1.5, step=0.1,
-                                                                label="Repetition Penalty")
-                    max_tokens_slider_local = gr.Slider(minimum=1, maximum=4000, value=250, step=1, label="Max Tokens")
-                    top_p_slider_local = gr.Slider(minimum=0, maximum=1, value=1, step=0.01,
-                                                   label="Top-p (nucleus sampling)")
-
         with gr.Row():
             api_generate_button = gr.Button("API Model Text Generation")
-            local_generate_button = gr.Button("Local Model Text Generation")
             append_button = gr.Button("Append Completion to Prompt")
             clear_button = gr.Button("Clear All Fields")
 
@@ -256,13 +162,6 @@ if __name__ == "__main__":
             outputs=output_text
         )
 
-        local_generation_event = local_generate_button.click(
-            local_generate_completion,
-            inputs=[prompt_input, max_tokens_slider_local, temperature_slider_local, repetition_penalty_slider_local,
-                    top_p_slider_local],
-            outputs=output_text
-        )
-
         append_button.click(
             append_completion,
             inputs=[prompt_input, output_text],
@@ -274,6 +173,6 @@ if __name__ == "__main__":
             outputs=[prompt_input, output_text]
         )
 
-        stop_button.click(None, None, None, cancels=[api_generation_event, local_generation_event])
+        stop_button.click(None, None, None, cancels=[api_generation_event])
 
     iface.launch(share=False)

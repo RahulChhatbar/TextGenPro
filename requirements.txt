@@ -6,9 +6,3 @@ torch==2.3.0+cpu
 gradio
 openai
 transformers
-pytest
-prometheus_client
-gspread
-google-auth
-google-auth-oauthlib
-google-auth-httplib2
